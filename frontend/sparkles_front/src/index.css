@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply bg-[var(--primary-bg-color)] text-slate-100;
+
+  font-family: "Roboto", sans-serif;
+  font-weight: 300;
+  font-style: normal;
+}
+
+:root {
+  /* Dark background color */
+  --primary-bg-color: #1f1f1f;
+  --primary-bg-color-light: #4d5055;
+  --primary-text-color: rgb(221, 221, 221);
+
+  /* White background color */
+  --secondary-bg-color: #ffffff;
+  --secondary-bg-color-light: #eaebee;
+  --secondary-text-color: #1f1f1f;
+}
