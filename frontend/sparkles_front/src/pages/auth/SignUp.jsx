@@ -2,18 +2,21 @@ import React, { useState } from "react";
 import { IoEye } from "react-icons/io5";
 import { IoEyeOff } from "react-icons/io5";
 import axiosInst from "../../helper/AxiosInstance";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const SignUp = () => {
  
-  // Usestates and variables
+  // hooks and variables
   const [enteredCredentials, setEnteredCredentials] = useState({
+    name:"",
     email: "",
     password: "",
     confirmPassword: ""
   })
   const [isPasswordVisible, setIsPasswordVisible] = useState(false)
 
+  const navigate = useNavigate();
 
   // Functions
   const handelEnteredCredentials = (e) => {
@@ -23,29 +26,56 @@ const SignUp = () => {
     })
   }
 
-  const handelSignInSubmit = async(e) => {
+  const handelSignUpSubmit = async(e) => {
     e.preventDefault();
-    setEnteredCredentials({
-    email: "",
-    password: "",
-    confirmPassword: ""
-  })
+
+    // check conditions before signup api call
+    if (enteredCredentials.password !== enteredCredentials.confirmPassword) {
+      toast.error("Passwords do not match");
+      setEnteredCredentials(prev => {
+        return {
+          ...prev, 
+          password: "",
+          confirmPassword: ""
+         }
+      }) 
+      return
+    }
+    else if (enteredCredentials.password.length < 8) {
+      toast.error("Password must be at least 8 characters long");
+      return
+    }
+
     try {
-      axiosInst.get("/texturl")
+      let apiResponse =await axiosInst.post("/user/signup", {
+        ...enteredCredentials
+      });
+         toast(apiResponse.data.message)
+         navigate("/login")
     }
-    catch (error) {
-      
+    catch(error){
+      console.log("Error is", error);
+      if (error?.response && error.response.status === 400) {
+        toast.error(error.response.data.message)
+      }
+      setEnteredCredentials(prev => {
+        return {
+          ...prev,
+           password: "",
+           confirmPassword: ""
+        }
+    }) 
     }
-   
   }
 
-  console.log("Enter credentials", enteredCredentials)
+  // console.log("Enter credentials", enteredCredentials)
+  
   return (
     <section className="h-full">
-      <div className="container h-full px-6 py-2">
-        <div className=" mt-16 g-6 flex h-full flex-wrap items-start justify-center lg:justify-between">
+      <div className="container h-full px-6 py-2 ">
+        <div className=" mt-1 g-6 flex h-full flex-wrap items-start justify-center lg:justify-between">
           {/* <!-- Left column container with background--> */}
-          <div className=" sm:mb-10 md:mb-0 md:w-8/12 lg:w-6/12">
+          <div className=" mt-6 sm:mb-10 md:mb-0 md:w-8/12 lg:w-6/12">
             <img
               // src="https://tecdn.b-cdn.net/img/Photos/new-templates/bootstrap-login-form/draw2.svg"
 
@@ -60,9 +90,21 @@ const SignUp = () => {
             <div className="h-full mb-6">
                <h2 className="text-center text-slate-100 font-medium text-2xl h-full bg-slate-700 p-1 rounded-md">SignUp</h2>
             </div>
-            <form onSubmit={handelSignInSubmit}>
+            <form onSubmit={handelSignUpSubmit}>
               
               <div className=" flex flex-col w-full">
+
+                {/* Name input field */}
+                 <input
+                  type="text"
+                  name="name"
+                  value={enteredCredentials.name}
+                  className="mb-2 w-full p-2 text-black  text-lg rounded-md outline-none border-1 border-slate-700"
+                  placeholder="Enter Full Name"
+                  onChange={handelEnteredCredentials}
+                  autoComplete="name"
+                    required
+                />
                
                 {/* <!-- Email input --> */}
                    <input
@@ -116,9 +158,9 @@ const SignUp = () => {
               <div className="mb-2 flex items-center justify-end">
                 
 
-                {/* <!-- Forgot password link --> */}
+                {/* <!-- Hanve an account --> */}
                 <div 
-                  className="text-white transition-all duration-150 ease-in-out hover:text-primary-600 focus:text-primary-600 active:text-primary-700 dark:text-primary-400 dark:hover:text-primary-500 dark:focus:text-primary-500 dark:active:text-primary-600 my-2 "
+                  className="text-white transition-all duration-150 ease-in-out hover:text-primary-600 focus:text-primary-600 active:text-primary-700 dark:text-primary-400 dark:hover:text-primary-500 dark:focus:text-primary-500 dark:active:text-primary-600 my-1 "
                 >
                   Have An Account, <Link to="/login" className="text-green-700 hover:underline  font-semibold">Login</Link>
                 </div>
